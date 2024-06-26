@@ -31,7 +31,7 @@ export class ContentController{
     }
     async updateContent(req: Request, res: Response){
         try {
-            const contentId:string=req.params.contentId
+            const contentId=req.params.contentId;
             const contentData: IContent = req.body;
             contentData.userId=req.user.userId;
             contentData.createdBy=req.user.userId;

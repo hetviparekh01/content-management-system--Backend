@@ -12,7 +12,7 @@ contentRoute.post('/updatecontent/:contentId',upload.fields([{
     name:'content',
     maxCount:1
 }]),contentController.updateContent)
-contentRoute.post('/deleteContent/:contentId',upload.fields([{
+contentRoute.delete('/deletecontent/:contentId',upload.fields([{
     name:'content',
     maxCount:1
 }]),contentController.deleteContent)

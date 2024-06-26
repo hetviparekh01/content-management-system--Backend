@@ -36,6 +36,7 @@ export class ContentService {
     //   } else {
     //     contentData.content = cloudinaryData.url;
     //   }
+    console.log(contentId,"in service");
       const response = await Content.findByIdAndUpdate(contentId, contentData);
       if (response) {
         return {
