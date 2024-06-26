@@ -1,0 +1,8 @@
+{
+    "url":"mongodb+srv://hetvi01:mongo_01@backenddb.oe9ottm.mongodb.net/content_management_system?retryWrites=true&w=majority&appName=backendDB",
+    "port":3000,
+    "secretKey":"HETVIPAREKH",
+    "cloud_name": "dillk6dtm", 
+    "api_key": "457539427898143", 
+    "api_secret": "HCFr6q1eaiuxx3bxT4cgWxZWRcs" 
+}
