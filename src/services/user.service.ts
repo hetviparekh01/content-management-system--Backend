@@ -4,6 +4,7 @@ import { User } from "../models/user.model";
 import { ApiError } from "../utils/ApiError";
 import jwt, { JwtPayload } from 'jsonwebtoken'
 import config from "config";
+import { ObjectId } from "mongoose";
 export class UserService{
     async signUp(userData:IUser){
         try {
@@ -70,9 +71,29 @@ export class UserService{
             return {status:false,statusCode:error.statusCode || 500,content:error.message}
         }
     }
-    async getUser(){
+    async getUser(paramsTerm:any){
         try {
-            const response=await User.find({})
+            const dynamicQuery={
+                $match:{}
+            };
+            let $and=[{}]
+            if(paramsTerm.role){
+                $and.push({'role':paramsTerm.role})
+            }
+            dynamicQuery.$match={...dynamicQuery.$match,$and}
+            const response=await User.aggregate([dynamicQuery])
+            if(response){
+                return {status:true,statusCode:200,content:response,length:response.length}
+            }else{
+                throw new ApiError(500,"ERROR IN GETTING USER")
+            }   
+        } catch (error:any) {
+            return {status:false,statusCode:error.statusCode || 500,content:error.message}
+        }
+    }
+    async getUserById(userId:string){
+        try {
+            const response=await User.findById(userId)
             if(response){
                 return {status:true,statusCode:200,content:response}
             }else{
@@ -80,6 +101,20 @@ export class UserService{
             }   
         } catch (error:any) {
             return {status:false,statusCode:error.statusCode || 500,content:error.message}
+        }
+    }
+    async getParticularUser(userId:ObjectId){
+        try {
+            const response=await User.findById(userId)
+            if(response){
+                return {status:true,statusCode:200,content:response}
+            }
+            else{
+                throw new ApiError(500,"ERROR IN GETTING USER")
+            }   
+        } catch (error:any) {
+            return {status:false,statusCode:error.statusCode || 500,content:error.message}
+            
         }
     }
 }

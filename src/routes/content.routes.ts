@@ -8,7 +8,7 @@ contentRoute.post('/postcontent',upload.fields([{
     name:'content',
     maxCount:1
 }]),contentController.postContent)
-contentRoute.post('/updatecontent/:contentId',upload.fields([{
+contentRoute.put('/updatecontent/:contentId',upload.fields([{
     name:'content',
     maxCount:1
 }]),contentController.updateContent)

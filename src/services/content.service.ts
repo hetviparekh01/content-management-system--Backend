@@ -4,7 +4,7 @@ import { Content } from "../models/content.model";
 import { ApiError } from "../utils/ApiError";
 import { uploadOnCloudinary } from "../utils/cloudinary";
 import { ObjectId } from "mongoose";
-
+import fs from "fs";
 export class ContentService {
   async postContent(contentData: IContent) {
     try {
@@ -26,7 +26,11 @@ export class ContentService {
       };
     }
   }
-  async updateContent(contentId: string, contentData: IContent) {
+  async updateContent(
+    contentId: string,
+    contentData: IContent,
+    mediaPath: string
+  ) {
     try {
       //   const cloudinaryData = await uploadOnCloudinary(
       //     contentData.content as string
@@ -36,8 +40,16 @@ export class ContentService {
       //   } else {
       //     contentData.content = cloudinaryData.url;
       //   }
+      fs.unlink(mediaPath, (err) => {
+        if (err) console.log(err);
+        else {
+          console.log("\nDeleted file: example_file.txt");
+        }
+      });
       console.log(contentId, "in service");
-      const response = await Content.findByIdAndUpdate(contentId, contentData);
+      const response = await Content.findByIdAndUpdate(contentId, contentData, {
+        new: true,
+      });
       if (response) {
         return {
           status: true,
@@ -55,8 +67,14 @@ export class ContentService {
       };
     }
   }
-  async deleteContent(contentId: string) {
+  async deleteContent(contentId: string, contentPath: string) {
     try {
+      fs.unlink(contentPath, (err) => {
+        if (err) console.log(err);
+        else {
+          console.log("\nDeleted file: example_file.txt");
+        }
+      });
       const response = await Content.findByIdAndDelete(contentId);
       if (response) {
         return {
@@ -88,12 +106,27 @@ export class ContentService {
       }
       dynamicQuery.$match = { ...dynamicQuery.$match, $and };
       // if(paramsTerms)
-      const response = await Content.find({});
+      const response = await Content.aggregate([
+        {
+          $lookup: {
+            from: "users",
+            localField: "userId",
+            foreignField: "_id",
+            as: "userDetails"
+          }
+        },
+        {
+          $unwind: {
+            path: "$userDetails",
+          }
+        },
+      ]);
       if (response) {
         return {
           status: true,
           statusCode: 200,
           content: response,
+          length:response.length
         };
       } else {
         throw new ApiError(500, "ERROR IN  GETTING CONTENT");
@@ -122,15 +155,18 @@ export class ContentService {
       };
     }
   }
-  async getContentOfParticularUser(userId:ObjectId){
+  async getContentOfParticularUser(userId: ObjectId) {
     try {
-      const response=await Content.find({userId:userId})
+      const response = await Content.find({ userId: userId });
       if (response) {
-        return { status: true, statusCode: 200, content: response };
+        return { status: true, statusCode: 200, content: response ,length:response.length};
       } else {
-        throw new ApiError(404, "ERROR IN GETTING CONTENT BY PARTICULAR EDITOR");
+        throw new ApiError(
+          404,
+          "ERROR IN GETTING CONTENT BY PARTICULAR EDITOR"
+        );
       }
-    } catch (error:any) {
+    } catch (error: any) {
       return {
         status: false,
         statusCode: error.statusCode || 500,

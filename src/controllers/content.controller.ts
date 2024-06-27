@@ -2,6 +2,7 @@ import { IContent } from "../interfaces/IContent";
 import { Request, Response } from "express";
 import { ContentService } from "../services/content.service";
 import mongoose, { ObjectId } from "mongoose";
+import { Content } from "../models/content.model";
 const contentService = new ContentService();
 export class ContentController {
   async postContent(req: Request, res: Response) {
@@ -12,7 +13,6 @@ export class ContentController {
       contentData.updatedBy = req.user.userId;
       const file = req.files as { [fieldname: string]: Express.Multer.File[] };
       contentData.content = file?.content?.[0]?.path;
-      console.log(req.files);
       const response = await contentService.postContent(contentData);
       if (response.status) {
         return res
@@ -30,15 +30,16 @@ export class ContentController {
   async updateContent(req: Request, res: Response) {
     try {
       const contentId = req.params.contentId;
+      const media=await Content.findById(contentId)
+      const mediaPath=media?.content
       const contentData: IContent = req.body;
-      contentData.userId = req.user.userId;
-      contentData.createdBy = req.user.userId;
       contentData.updatedBy = req.user.userId;
       const file = req.files as { [fieldname: string]: Express.Multer.File[] };
       contentData.content = file?.content?.[0]?.path;
       const response = await contentService.updateContent(
         contentId,
-        contentData
+        contentData,
+        (mediaPath) as string
       );
       if (response.status) {
         return res
@@ -56,7 +57,8 @@ export class ContentController {
   async deleteContent(req: Request, res: Response) {
     try {
       const contentId: string = req.params.contentId;
-      const response = await contentService.deleteContent(contentId);
+      const content=await Content.findById(contentId)
+      const response = await contentService.deleteContent(contentId,(content?.content)as string);
       if (response.status) {
         return res
           .status(response.statusCode)
@@ -77,7 +79,7 @@ export class ContentController {
       if (response.status) {
         return res
           .status(response.statusCode)
-          .json({ status: response.status, content: response.content });
+          .json({ status: response.status, content: response.content,length:response.length });
       } else {
         return res
           .status(response.statusCode)
@@ -111,7 +113,7 @@ export class ContentController {
       if (response.status) {
         return res
           .status(response.statusCode)
-          .json({ status: response.status, content: response.content });
+          .json({ status: response.status, content: response.content,length:response.length });
       } else {
         return res
           .status(response.statusCode)
