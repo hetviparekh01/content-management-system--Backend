@@ -18,5 +18,7 @@ contentRoute.delete('/deletecontent/:contentId',upload.fields([{
 }]),contentController.deleteContent)
 contentRoute.get('/getcontent',contentController.getContent)
 contentRoute.get('/getcontent/:contentId',contentController.getContentById)
+contentRoute.get('/getcontentofuser',contentController.getContentByParticularUser)
+
 
 export default contentRoute
