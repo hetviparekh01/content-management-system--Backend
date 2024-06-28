@@ -85,8 +85,7 @@ export class UserController {
   }
   async getUser(req: Request, res: Response){
     try {
-      const paramsTerms=req.query
-      const response = await userServcie.getUser(paramsTerms);
+      const response = await userServcie.getUser();
       if (response.status) {
         return res
           .status(response.statusCode)
@@ -129,6 +128,24 @@ export class UserController {
         return res
           .status(response.statusCode)
           .json({ status: response.status, content: response.content });
+      } else {
+        return res
+          .status(response.statusCode)
+          .json({ status:  response.status, content: response.content });
+      }
+    } catch (error: any) {
+      return res
+        .status(error.statusCode)
+        .json({ status: false, content: error.message });
+    }
+  }
+  async getUserType(req: Request, res: Response){
+    try {
+      const response = await userServcie.getUserType();
+      if (response.status) {
+        return res
+          .status(response.statusCode)
+          .json({ status: response.status, content: response.content,length:response.length });
       } else {
         return res
           .status(response.statusCode)

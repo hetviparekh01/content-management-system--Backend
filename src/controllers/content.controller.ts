@@ -74,8 +74,7 @@ export class ContentController {
   }
   async getContent(req: Request, res: Response) {
     try {
-      const paramsTerms = req.query;
-      const response = await contentService.getContent(paramsTerms);
+      const response = await contentService.getContent();
       if (response.status) {
         return res
           .status(response.statusCode)
@@ -108,8 +107,10 @@ export class ContentController {
   }
   async getContentByParticularUser(req: Request, res: Response){
     try {
-      const userId=req.user.userId
-      const response=await contentService.getContentOfParticularUser(userId as ObjectId)
+      const userId=req.user.userId;
+      const userIdString = userId.toString(); 
+      console.log();
+      const response=await contentService.getContentOfParticularUser(userIdString)
       if (response.status) {
         return res
           .status(response.statusCode)
@@ -123,5 +124,20 @@ export class ContentController {
       return res.status(500).json({ status: false, content: error.message });
     }
   }
-  
+  async getContentByMonth(req: Request, res: Response) {
+    try {
+      const response = await contentService.getContentByMonth();
+      if (response.status) {
+        return res
+          .status(response.statusCode)
+          .json({ status: response.status, content: response.content,length:response.length });
+      } else {
+        return res
+          .status(response.statusCode)
+          .json({ status: response.status, content: response.content });
+      }
+    } catch (error: any) {
+      return res.status(500).json({ status: false, content: error.message });
+    }
+  }
 }

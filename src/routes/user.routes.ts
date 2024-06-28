@@ -11,5 +11,6 @@ userRoute.post('/updateuser/:id',authMiddleware,userController.updateUser)
 userRoute.delete('/deleteuser/:id',authMiddleware,userController.deleteUser)
 userRoute.get('/getuserbyid/:id',authMiddleware,userController.getUserById)
 userRoute.get('/getparticularuser',authMiddleware,userController.getParticularUser)
+userRoute.get('/getusertype',authMiddleware,userController.getUserType)
 
 export default userRoute    

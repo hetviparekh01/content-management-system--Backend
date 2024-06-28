@@ -6,6 +6,7 @@ const UserSchema=new Schema<IUser>({
     email:{type:String,required:[true,'email is required'],unique:true},
     password:{type:String,required:[true,'password is required']},
     role:{type:String,required:[true,'role is required'],enum:['viewer','editor','admin']},
-})
+},
+{timestamps:true})
 
 export const User=mongoose.model("user",UserSchema) 

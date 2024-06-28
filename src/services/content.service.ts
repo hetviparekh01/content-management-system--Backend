@@ -3,7 +3,7 @@ import { IContent } from "../interfaces/IContent";
 import { Content } from "../models/content.model";
 import { ApiError } from "../utils/ApiError";
 import { uploadOnCloudinary } from "../utils/cloudinary";
-import { ObjectId } from "mongoose";
+import mongoose from "mongoose";
 import fs from "fs";
 export class ContentService {
   async postContent(contentData: IContent) {
@@ -93,19 +93,8 @@ export class ContentService {
       };
     }
   }
-  async getContent(paramsTerms: any) {
+  async getContent() {
     try {
-      const dynamicQuery = {
-        $match: {},
-      };
-      let $and = [{}];
-      if (paramsTerms.type) {
-        $and.push({
-          type: paramsTerms.type,
-        });
-      }
-      dynamicQuery.$match = { ...dynamicQuery.$match, $and };
-      // if(paramsTerms)
       const response = await Content.aggregate([
         {
           $lookup: {
@@ -155,9 +144,30 @@ export class ContentService {
       };
     }
   }
-  async getContentOfParticularUser(userId: ObjectId) {
+  async getContentOfParticularUser(userIdString:string) {
     try {
-      const response = await Content.find({ userId: userId });
+      console.log(userIdString);
+      const userIdObject = new mongoose.Types.ObjectId(userIdString);
+      const response = await Content.aggregate([
+        {
+          $lookup: {
+            from: "users",
+            localField: "userId",
+            foreignField: "_id",
+            as: "userDetails"
+          }
+        },
+        {
+          $unwind: {
+            path: "$userDetails",
+          }
+        },
+        {
+          $match:{
+            userId:userIdObject
+          }
+        }    
+      ]);
       if (response) {
         return { status: true, statusCode: 200, content: response ,length:response.length};
       } else {
@@ -165,6 +175,62 @@ export class ContentService {
           404,
           "ERROR IN GETTING CONTENT BY PARTICULAR EDITOR"
         );
+      }
+    } catch (error: any) {
+      return {
+        status: false,
+        statusCode: error.statusCode || 500,
+        content: error.message,
+      };
+    }
+  }
+
+  async getContentByMonth(){
+    try {
+      const response = await Content.aggregate([
+        {
+         $addFields: {
+           month: { $month: { date: "$createdAt" } }
+     
+         }
+       },
+       {
+         $group: {
+           _id: "$month",
+           totalcontent: {
+             $sum:1
+           }
+         }
+       },{
+         $project: {
+           _id: 0,
+           month : "$_id",
+           count : "$totalcontent"
+         }
+       },
+       {
+        $sort: {
+          month:1
+        }
+      }
+     ]);
+    
+     const month=response.map((element: { month: any; })=>
+      {return element.month}
+  );
+  const totalContent=response.map((element: { count: any; })=>
+    {return element.count})
+  console.log(totalContent);
+  console.log(month);
+      if (response) {
+        return {
+          status: true,
+          statusCode: 200,
+          content: response,
+          length:response.length
+        };
+      } else {
+        throw new ApiError(500, "ERROR IN  GETTING CONTENT");
       }
     } catch (error: any) {
       return {
