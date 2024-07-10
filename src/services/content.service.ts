@@ -46,7 +46,6 @@ export class ContentService {
           console.log("\nDeleted file: example_file.txt");
         }
       });
-      console.log(contentId, "in service");
       const response = await Content.findByIdAndUpdate(contentId, contentData, {
         new: true,
       });
@@ -146,7 +145,6 @@ export class ContentService {
   }
   async getContentOfParticularUser(userIdString:string) {
     try {
-      console.log(userIdString);
       const userIdObject = new mongoose.Types.ObjectId(userIdString);
       const response = await Content.aggregate([
         {
@@ -220,8 +218,6 @@ export class ContentService {
   );
   const totalContent=response.map((element: { count: any; })=>
     {return element.count})
-  console.log(totalContent);
-  console.log(month);
       if (response) {
         return {
           status: true,

@@ -5,6 +5,9 @@ import { ApiError } from "../utils/ApiError";
 import jwt, { JwtPayload } from 'jsonwebtoken'
 import config from "config";
 import { ObjectId } from "mongoose";
+import Role from "../models/role.model";
+import Module from "../models/module.model";
+import Permission from "../models/permission.model";
 export class UserService{
     async signUp(userData:IUser){
         try {
@@ -23,6 +26,7 @@ export class UserService{
     async login(userData:IUser){
         try {
             const user=await User.findOne({email:userData.email})
+            Permission
             if(!user){
                 throw new ApiError(404,'USER NOT FOUND')
             }
@@ -33,7 +37,8 @@ export class UserService{
             const payload:JwtPayload={
                 userId:user._id,
                 email:user.email,
-                role:user.role
+                role:user.role,
+                roleId:user.roleId
             }
             const token=await jwt.sign(payload,config.get("secretKey") as string,{expiresIn:'24h'})  
 
